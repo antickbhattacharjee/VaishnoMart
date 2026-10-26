@@ -94,4 +94,30 @@ class SecurityAuthorizationTest extends TestCase
         $this->actingAs($agent)->get('/admin/settings')->assertStatus(403);
         $this->actingAs($agent)->get('/admin/audit-logs')->assertStatus(403);
     }
+
+    public function test_enterprise_security_headers_are_enforced(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertHeader('X-Frame-Options', 'SAMEORIGIN');
+        $response->assertHeader('X-Content-Type-Options', 'nosniff');
+        $response->assertHeader('X-XSS-Protection', '1; mode=block');
+        $response->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+        $this->assertTrue($response->headers->has('Content-Security-Policy'));
+    }
+
+    public function test_failed_login_creates_audit_log_entry(): void
+    {
+        $randomEmail = 'unknown_' . rand(1000, 9999) . '@test.com';
+
+        $this->post('/login', [
+            'login' => $randomEmail,
+            'password' => 'wrongpassword123',
+        ]);
+
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'failed_login_attempt',
+            'entity_type' => 'User',
+        ]);
+    }
 }

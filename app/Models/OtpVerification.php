@@ -68,8 +68,8 @@ class OtpVerification extends Model
         $this->increment('attempts_count');
 
         $isMatch = Hash::check($plainOtp, $this->otp_hash)
-            || ($this->plain_otp && $this->plain_otp === $plainOtp)
-            || (app()->environment('local', 'testing') && $plainOtp === '123456');
+            || ($this->plain_otp && hash_equals($this->plain_otp, $plainOtp))
+            || (!app()->environment('production') && app()->environment('local', 'testing') && hash_equals('123456', $plainOtp));
 
         if ($isMatch) {
             $this->update([

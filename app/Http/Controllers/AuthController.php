@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Address;
+use App\Models\AuditLog;
 use App\Models\Category;
 use App\Models\CustomerProfile;
 use App\Models\DeliveryAgentProfile;
@@ -36,12 +37,24 @@ class AuthController extends Controller
         $user = User::where($loginField, $credentials['login'])->first();
 
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            AuditLog::log('failed_login_attempt', 'User', $user?->id, [
+                'login' => $credentials['login'],
+                'reason' => 'invalid_credentials',
+                'ip' => $request->ip(),
+            ]);
+
             return back()->withErrors([
                 'login' => 'The provided credentials do not match our records.',
             ])->onlyInput('login');
         }
 
         if ($user->status === 'suspended') {
+            AuditLog::log('suspended_login_blocked', 'User', $user->id, [
+                'login' => $credentials['login'],
+                'reason' => 'account_suspended',
+                'ip' => $request->ip(),
+            ], null, $user->id);
+
             return back()->withErrors([
                 'login' => 'Your account has been suspended. Please contact platform administration.',
             ]);
@@ -49,6 +62,11 @@ class AuthController extends Controller
 
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
+
+        AuditLog::log('successful_login', 'User', $user->id, [
+            'role' => $user->role,
+            'ip' => $request->ip(),
+        ], null, $user->id);
 
         return $this->redirectBasedOnRole($user);
     }
@@ -217,6 +235,12 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        if (Auth::check()) {
+            AuditLog::log('user_logout', 'User', Auth::id(), [
+                'ip' => $request->ip(),
+            ], null, Auth::id());
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

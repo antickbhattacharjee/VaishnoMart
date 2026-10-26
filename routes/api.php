@@ -11,18 +11,20 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Public API Endpoints
-Route::post('/login', [AuthController::class, 'login']);
-Route::get('/categories', [CatalogueApiController::class, 'categories']);
-Route::get('/nearby-vendors', [CatalogueApiController::class, 'nearbyVendors']);
-Route::get('/products', [CatalogueApiController::class, 'products']);
+Route::middleware('throttle:api')->group(function () {
+    // Public API Endpoints
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
+    Route::get('/categories', [CatalogueApiController::class, 'categories']);
+    Route::get('/nearby-vendors', [CatalogueApiController::class, 'nearbyVendors']);
+    Route::get('/products', [CatalogueApiController::class, 'products']);
 
-// Authenticated API Endpoints (Sanctum)
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', [AuthController::class, 'user']);
-    Route::post('/logout', [AuthController::class, 'logout']);
+    // Authenticated API Endpoints (Sanctum)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/user', [AuthController::class, 'user']);
+        Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Orders API
-    Route::get('/orders', [OrderApiController::class, 'customerOrders']);
-    Route::get('/orders/{id}', [OrderApiController::class, 'show']);
+        // Orders API
+        Route::get('/orders', [OrderApiController::class, 'customerOrders']);
+        Route::get('/orders/{id}', [OrderApiController::class, 'show'])->whereNumber('id');
+    });
 });

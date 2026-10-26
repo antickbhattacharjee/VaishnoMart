@@ -48,7 +48,7 @@
                             </td>
                             <td>
                                 <span class="text-xs font-monospace">
-                                    {{ class_basename($log->auditable_type) }} #{{ $log->auditable_id }}
+                                    {{ class_basename($log->entity_type) }} {{ $log->entity_id ? '#' . $log->entity_id : '' }}
                                 </span>
                             </td>
                             <td>

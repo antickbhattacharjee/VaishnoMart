@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\AuditLog;
 use App\Models\Order;
 use App\Models\OtpVerification;
 use App\Models\User;
@@ -93,11 +94,19 @@ class OtpService
 
         if (!$isValid) {
             $remaining = max(0, $otpRecord->max_attempts - $otpRecord->attempts_count);
+            AuditLog::log('invalid_otp_attempt', 'Order', $order->id, [
+                'stage' => $stage,
+                'remaining' => $remaining,
+            ]);
             return [
                 'success' => false,
                 'message' => "Invalid OTP entered. Remaining attempts: {$remaining}.",
             ];
         }
+
+        AuditLog::log('otp_verified_successfully', 'Order', $order->id, [
+            'stage' => $stage,
+        ]);
 
         return [
             'success' => true,
