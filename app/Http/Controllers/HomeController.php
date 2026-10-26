@@ -5,10 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\VendorProfile;
+use App\Services\RecommendationService;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
+    protected RecommendationService $recommendationService;
+
+    public function __construct(RecommendationService $recommendationService)
+    {
+        $this->recommendationService = $recommendationService;
+    }
+
     public function index(Request $request)
     {
         // Default coordinates: Connaught Place, Central Delhi (28.6315, 77.2200)
@@ -66,6 +74,14 @@ class HomeController extends Controller
             ->take(8)
             ->get();
 
+        // Machine Learning Hybrid Personalized Recommendations
+        $aiRecommendedProducts = $this->recommendationService->getPersonalizedRecommendations(
+            auth()->user(),
+            8,
+            $userLat,
+            $userLng
+        );
+
         return view('home', compact(
             'categories',
             'nearbyVendors',
@@ -74,6 +90,7 @@ class HomeController extends Controller
             'dryFruitsProducts',
             'groceryProducts',
             'popularProducts',
+            'aiRecommendedProducts',
             'userLat',
             'userLng'
         ));
@@ -141,14 +158,13 @@ class HomeController extends Controller
             ->active()
             ->firstOrFail();
 
-        $relatedProducts = Product::with(['vendor', 'category'])
-            ->where('category_id', $product->category_id)
-            ->where('id', '!=', $product->id)
-            ->active()
-            ->take(4)
-            ->get();
+        // ML Content-Based Similar Products
+        $similarProducts = $this->recommendationService->getSimilarProducts($product, 4);
 
-        return view('product-detail', compact('product', 'relatedProducts'));
+        // ML Collaborative Filtering: Frequently Bought Together
+        $frequentlyBoughtTogether = $this->recommendationService->getFrequentlyBoughtTogether($product, 3);
+
+        return view('product-detail', compact('product', 'similarProducts', 'frequentlyBoughtTogether'));
     }
 
     public function search(Request $request)

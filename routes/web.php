@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DeliveryAgentController;
@@ -23,6 +24,13 @@ Route::get('/category/{slug}', [HomeController::class, 'category'])->name('categ
 Route::get('/store/{id}', [HomeController::class, 'vendor'])->name('vendor.show')->whereNumber('id');
 Route::get('/product/{slug}', [HomeController::class, 'product'])->name('product.show');
 Route::get('/search', [HomeController::class, 'search'])->name('search');
+
+// RAG AI Assistant Chatbot Routes
+Route::prefix('chatbot')->name('chatbot.')->group(function () {
+    Route::post('/message', [ChatbotController::class, 'ask'])->name('message');
+    Route::get('/history', [ChatbotController::class, 'history'])->name('history');
+    Route::post('/clear', [ChatbotController::class, 'clear'])->name('clear');
+});
 
 // Shopping Cart (Available to guests & logged in customers)
 Route::prefix('cart')->name('cart.')->group(function () {

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CatalogueApiController;
 use App\Http\Controllers\Api\OrderApiController;
+use App\Http\Controllers\Api\RecommendationApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,6 +18,13 @@ Route::middleware('throttle:api')->group(function () {
     Route::get('/categories', [CatalogueApiController::class, 'categories']);
     Route::get('/nearby-vendors', [CatalogueApiController::class, 'nearbyVendors']);
     Route::get('/products', [CatalogueApiController::class, 'products']);
+
+    // Machine Learning Recommendation API
+    Route::prefix('recommendations')->group(function () {
+        Route::get('/personalized', [RecommendationApiController::class, 'personalized']);
+        Route::get('/product/{id}/similar', [RecommendationApiController::class, 'similar'])->whereNumber('id');
+        Route::get('/product/{id}/frequently-bought-together', [RecommendationApiController::class, 'frequentlyBoughtTogether'])->whereNumber('id');
+    });
 
     // Authenticated API Endpoints (Sanctum)
     Route::middleware('auth:sanctum')->group(function () {

@@ -6,7 +6,11 @@
             <i class="bi bi-box-seam vm-product-icon"></i>
         @endif
 
-        @if($product->deposit_amount > 0)
+        @if(isset($product->match_percentage))
+            <span class="position-absolute top-0 start-0 m-2 badge rounded-pill shadow-sm text-white" style="background: linear-gradient(135deg, #8b5cf6 0%, #059669 100%); font-size: 0.72rem; z-index: 2;">
+                <i class="bi bi-stars me-1"></i>{{ $product->match_percentage }}% Match
+            </span>
+        @elseif($product->deposit_amount > 0)
             <span class="position-absolute top-0 start-0 m-2 badge bg-info text-dark shadow-sm">
                 <i class="bi bi-arrow-repeat me-1"></i>₹{{ number_format($product->deposit_amount, 0) }} Deposit
             </span>

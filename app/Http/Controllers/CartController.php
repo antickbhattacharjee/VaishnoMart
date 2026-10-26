@@ -7,11 +7,19 @@ use App\Models\CartItem;
 use App\Models\DeliveryFeeRule;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Services\RecommendationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
+    protected RecommendationService $recommendationService;
+
+    public function __construct(RecommendationService $recommendationService)
+    {
+        $this->recommendationService = $recommendationService;
+    }
+
     /**
      * Get or create active cart for user or guest session.
      */
@@ -65,6 +73,10 @@ class CartController extends Controller
 
         $estimatedTotal = $subtotal + $taxAmount + $deliveryFee + $depositTotal;
 
+        // ML Cross-sell Add-Ons for current cart
+        $cartProductIds = $items->pluck('product_id')->toArray();
+        $aiAddOns = $this->recommendationService->getCartCrossSellRecommendations($cartProductIds, 4);
+
         return view('cart.index', compact(
             'cart',
             'items',
@@ -74,7 +86,8 @@ class CartController extends Controller
             'taxAmount',
             'depositTotal',
             'estimatedTotal',
-            'distance'
+            'distance',
+            'aiAddOns'
         ));
     }
 

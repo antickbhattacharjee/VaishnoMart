@@ -125,6 +125,43 @@
         @endif
     </div>
 
+    <!-- AI/ML Personalized Recommendations Section -->
+    @if(isset($aiRecommendedProducts) && $aiRecommendedProducts->isNotEmpty())
+        <div class="card border-0 rounded-4 shadow-sm mb-5 overflow-hidden" style="background: linear-gradient(135deg, #f5f3ff 0%, #ecfdf5 50%, #ffffff 100%); border: 1px solid rgba(139, 92, 246, 0.2) !important;">
+            <div class="card-body p-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <span class="badge rounded-pill text-white px-3 py-1 shadow-sm" style="background: linear-gradient(135deg, #7c3aed 0%, #059669 100%); font-size: 0.78rem;">
+                                <i class="bi bi-stars me-1"></i> AI & ML Powered
+                            </span>
+                            <span class="badge bg-white text-secondary border rounded-pill px-2 py-1 small">
+                                Hyperlocal Collaborative Match
+                            </span>
+                        </div>
+                        <h4 class="fw-bold mb-0 text-dark">
+                            Recommended For You
+                        </h4>
+                        <div class="text-muted small">Personalized items selected using machine learning based on your preferences and local trends</div>
+                    </div>
+                    <div>
+                        <span class="text-xs text-muted font-monospace bg-white px-3 py-2 rounded-pill border">
+                            <i class="bi bi-cpu text-purple me-1"></i> Cosine Similarity • 95%+ Confidence
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+                    @foreach($aiRecommendedProducts as $product)
+                        <div class="col">
+                            @include('partials.product-card', ['product' => $product])
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Section 9: Drinking Water & Packaged Water -->
     <div class="mb-5" id="sectionWater">
         <div class="d-flex justify-content-between align-items-center mb-3">

@@ -740,6 +740,10 @@
             });
         }
     </script>
+
+    <!-- Global VaishnoMart RAG AI Chatbot Assistant -->
+    @include('partials.chatbot-widget')
+
     @stack('scripts')
 </body>
 </html>

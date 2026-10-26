@@ -116,6 +116,41 @@
                         </button>
                     </form>
                 </div>
+
+                <!-- AI Smart Add-Ons (ML Cross-Sell) -->
+                @if(isset($aiAddOns) && $aiAddOns->isNotEmpty())
+                    <div class="card border-0 rounded-4 shadow-sm bg-white p-4 mt-4" style="border: 1px dashed rgba(139, 92, 246, 0.4) !important;">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <span class="badge rounded-pill text-white px-2 py-1 small" style="background: linear-gradient(135deg, #8b5cf6 0%, #059669 100%);">
+                                    <i class="bi bi-stars me-1"></i> AI Smart Add-Ons
+                                </span>
+                                <h6 class="fw-bold mb-0 mt-1">Recommended to complete your basket</h6>
+                            </div>
+                            <span class="small text-muted font-monospace d-none d-sm-inline">Complementary picks</span>
+                        </div>
+                        <div class="row row-cols-1 row-cols-sm-2 g-3">
+                            @foreach($aiAddOns as $addon)
+                                <div class="col">
+                                    <div class="p-3 rounded-3 border bg-light d-flex align-items-center justify-content-between">
+                                        <div class="overflow-hidden me-2">
+                                            <div class="fw-semibold text-truncate small">{{ $addon->name }}</div>
+                                            <div class="text-success fw-bold small">₹{{ number_format($addon->effective_price, 2) }} <span class="text-muted fw-normal">/ {{ $addon->unit }}</span></div>
+                                        </div>
+                                        <form action="{{ route('cart.add') }}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="product_id" value="{{ $addon->id }}">
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3 text-nowrap">
+                                                <i class="bi bi-plus-lg"></i> Add
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <!-- Summary Order Breakdown -->

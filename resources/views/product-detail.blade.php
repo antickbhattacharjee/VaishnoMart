@@ -108,14 +108,49 @@
         </div>
     </div>
 
-    <!-- Related Products -->
-    @if($relatedProducts->isNotEmpty())
-        <div class="mb-4">
-            <h5 class="fw-bold mb-3">More in {{ $product->category->name }}</h5>
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
-                @foreach($relatedProducts as $rel)
+    <!-- Frequently Bought Together (ML Collaborative Filtering) -->
+    @if(isset($frequentlyBoughtTogether) && $frequentlyBoughtTogether->isNotEmpty())
+        <div class="card border-0 rounded-4 shadow-sm p-4 mb-4" style="background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%); border: 1px solid rgba(245, 158, 11, 0.25) !important;">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <span class="badge bg-warning text-dark rounded-pill px-3 py-1 fw-bold mb-1">
+                        <i class="bi bi-basket3-fill me-1"></i> AI Bundle Analysis
+                    </span>
+                    <h5 class="fw-bold mb-0">Frequently Bought Together</h5>
+                    <div class="small text-muted">Customers who purchased this item also regularly add these to their cart:</div>
+                </div>
+                <span class="badge bg-white text-secondary border rounded-pill px-3 py-2 small d-none d-md-inline-block">
+                    <i class="bi bi-diagram-3 text-warning me-1"></i> Basket Co-occurrence Matrix
+                </span>
+            </div>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                @foreach($frequentlyBoughtTogether as $fbt)
                     <div class="col">
-                        @include('partials.product-card', ['product' => $rel])
+                        @include('partials.product-card', ['product' => $fbt])
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    <!-- Similar Products (ML Content-Based Similarity) -->
+    @if(isset($similarProducts) && $similarProducts->isNotEmpty())
+        <div class="mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-stars text-primary me-1"></i> Similar Products
+                    </h5>
+                    <div class="small text-muted">Items with matching specifications, category, and taste profile</div>
+                </div>
+                <span class="badge bg-primary-subtle text-primary border rounded-pill px-3 py-1 small">
+                    TF-IDF Cosine Similarity
+                </span>
+            </div>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-3">
+                @foreach($similarProducts as $sim)
+                    <div class="col">
+                        @include('partials.product-card', ['product' => $sim])
                     </div>
                 @endforeach
             </div>
